@@ -87,9 +87,11 @@
         <p>Schrijf nu je boodschappenlijstje vanaf elke plek!</p>
         <form method="POST" action="/login">
             <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Sign in</button>
+            <input type="password" name="password" placeholder="Wachtwoord" required>
+            <button type="submit">Log in</button>
+            
         </form>
+        <a href="/aanmelden">Nog geen account? Meld je aan!</a>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
         <ul class="error">

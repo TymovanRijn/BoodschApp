@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aanmelden</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #8ecae6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1584473457406-6240486418e9?auto=format&fit=crop&q=80&w=2574&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 85%;
+            max-width: 350px;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #023047;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #001a24;
+        }
+
+        .error {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+
+        .password-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form method="POST" action="/aanmelden" oninput="checkPasswords()">
+            <input type="text" name="voornaam" placeholder="Voornaam" required>
+            <input type="text" name="achternaam" placeholder="Achternaam" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <div class="password-input">
+                <input type="password" id="wachtwoord" name="wachtwoord" placeholder="Wachtwoord" required>
+                <span class="password-toggle" onclick="togglePasswordVisibility('wachtwoord')">👁️</span>
+            </div>
+            <div class="password-input">
+                <input type="password" id="herhaal-wachtwoord" name="herhaal-wachtwoord" placeholder="Herhaal Wachtwoord" required>
+                <span class="password-toggle" onclick="togglePasswordVisibility('herhaal-wachtwoord')">👁️</span>
+            </div>
+            <span id="password-error" class="error"></span>
+            <button type="submit">Aanmelden</button>
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul class="error">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        function togglePasswordVisibility(inputId) {
+            var passwordInput = document.getElementById(inputId);
+            var toggleSpan = passwordInput.nextElementSibling;
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleSpan.textContent = '🕶️';
+            } else {
+                passwordInput.type = "password";
+                toggleSpan.textContent = '👁️';
+            }
+        }
+
+        function checkPasswords() {
+            var wachtwoord = document.getElementById('wachtwoord').value;
+            var herhaalWachtwoord = document.getElementById('herhaal-wachtwoord').value;
+            var errorSpan = document.getElementById('password-error');
+            if (wachtwoord !== herhaalWachtwoord) {
+                errorSpan.textContent = 'Wachtwoorden komen niet overeen.';
+            } else {
+                errorSpan.textContent = '';
+            }
+        }
+    </script>
+</body>
+
+</html>
