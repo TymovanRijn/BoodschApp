@@ -1,0 +1,16 @@
+{
+  "name": "boodschApp",
+  "short_name": "BoodschApp",
+  "description": "Voor alle boodschappen!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4C76D9",
+  "icons": [
+    {
+      "src": "GroceryCartoonMan.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

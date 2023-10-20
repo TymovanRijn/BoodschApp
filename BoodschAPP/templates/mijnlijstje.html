@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn Lijstje</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e5e5e5;
+        }
+
+        h1 {
+            background-color: #4C76D9;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 1em 0.01em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+        }
+
+                /* Stijlen voor de dropdown-container */
+        .category-dropdown {
+    text-align: center;
+    margin-top: 20px;
+}
+
+        /* Stijlen voor de dropdown */
+        #categoryDropdown {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            background-color: #f8f8f8;
+            color: #333;
+            width: 200px; /* Hier kun je de breedte aanpassen aan je voorkeur */
+        }
+
+        /* Stijlen voor de dropdown-arrow */
+        .category-dropdown::after {
+            content: "▼";
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* Verander de kleur van de dropdown bij hover */
+        #categoryDropdown:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Verander de kleur van de dropdown bij focus */
+        #categoryDropdown:focus {
+            border: 1px solid #4caf50;
+        }
+
+        /* Stijlen voor de option elementen */
+        #categoryDropdown option {
+        padding: 10px;
+        }
+
+        .product-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 10px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            background-color: white;
+            transition: background-color 0.3s;
+        }
+
+        .product-list li:last-child {
+            border-bottom: none;
+        }
+
+        .product-list li:hover {
+            background-color: #f9f9f9;
+        }
+
+        .remove-button {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #4C76D9;
+        }
+
+        .remove-button input {
+            margin-right: 5px;
+            display: none;
+        }
+
+        .remove-button label {
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            transition: background-color 0.3s;
+        }
+
+        .remove-button label:hover {
+            background-color: #e5e5e5;
+        }
+
+        .add-item-form {
+            display: flex;
+            align-items: center;
+            margin: 20px 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-item-form input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .add-item-form button {
+            background-color: #4C76D9;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .add-item-form button:hover {
+            background-color: #3a5ca8;
+        }
+        /* Stijlen voor de new_item_category dropdown */
+        #new_item_category {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            appearance: none;
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            background-color: #f8f8f8;
+            color: #333;
+            flex: 1; /* Hiermee wordt de dropdown uitgerekt om beschikbare ruimte in te nemen */
+        }
+
+        /* Verander de kleur van de dropdown bij hover */
+        #new_item_category:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Verander de kleur van de dropdown bij focus */
+        #new_item_category:focus {
+            border: 1px solid #4caf50;
+        }
+        /* Stijlen voor de instellingenknop */
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .settings-icon img {
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>De {{ session.user_familyname }} Lijst</h1>
+
+    <div class="navbar">
+        <div><a href="/home"><img class="icon" src="{{ url_for('static', filename='icon_home.png') }}" alt="Home"></a></div>
+        <div><a href="/mijnaccount"><img class="icon" src="{{ url_for('static', filename='icon_account.png') }}" alt="Account"></a></div>
+        <div><a href="/mijnlijstje"><img class="icon" src="{{ url_for('static', filename='icon_list.png') }}" alt="Lijst"></a></div>
+        <div><a href="/logout"><img class="icon" src="{{ url_for('static', filename='icon_logout.png') }}" alt="Instellingen"></a></div>
+    </div>
+    <div class="settings-icon">
+        <a href="/lijstjeinstellingen">
+            <img src="{{ url_for('static', filename='icon_settings.png') }}" alt="Instellingen">
+        </a>
+    </div>
+
+    <div class="category-dropdown">
+        <select id="categoryDropdown" onchange="showProductsByCategory()">
+            <option value="" disabled selected>Selecteer categorie</option>
+        </select>
+    </div>
+
+    <ul class="category-list">
+        <!-- Hier worden categorieën dynamisch ingevuld via JavaScript -->
+    </ul>
+
+    <ul class="product-list">
+        <!-- Hier worden producten per categorie dynamisch ingevuld via JavaScript -->
+    </ul>
+
+    <form class="add-item-form" action="/add_item" method="POST">
+    <input type="text" name="new_item" placeholder="Voeg een nieuw item toe" required>
+    <select name="new_item_category" id="new_item_category">
+        <option value="" disabled selected>Selecteer categorie</option>
+    </select>
+    <button type="submit">Toevoegen</button>
+    </form>
+
+    <script>
+        // JavaScript om categorieën en producten dynamisch in te vullen en te beheren
+        const categoryDropdown = document.getElementById('categoryDropdown');
+        const newItemCategoryDropdown = document.getElementById('new_item_category');
+        const categoryList = document.querySelector('.category-list');
+        const productContainer = document.querySelector('.product-list');
+
+        // Functie om categorieën op te halen vanuit de Flask-backend
+        function fetchCategories() {
+            fetch('/get_categories')
+                .then(response => response.json())
+                .then(data => {
+                    categoryDropdown.innerHTML = '<option value="" disabled selected>Selecteer categorie</option>';
+                    newItemCategoryDropdown.innerHTML = '<option value="" disabled selected>Selecteer categorie</option>';
+                    data.categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        categoryDropdown.appendChild(option);
+
+                        const newItemOption = option.cloneNode(true);
+                        newItemCategoryDropdown.appendChild(newItemOption);
+                    });
+
+                    // Selecteer standaard de eerste categorie
+                    if (data.categories.length > 0) {
+                        showProductsByCategory();
+                    }
+                })
+                .catch(error => console.error('Fout bij het ophalen van categorieën:', error));
+        }
+
+        // Functie om producten per categorie op te halen en weer te geven
+        // Functie om producten per categorie op te halen en weer te geven
+        function showProductsByCategory() {
+            const selectedCategory = categoryDropdown.value;
+            fetch(`/get_products_by_category/${selectedCategory}`)
+                .then(response => response.json())
+                .then(data => {
+                    productContainer.innerHTML = '';
+                    let currentCategory = null;
+
+                    data.products.forEach(product => {
+                        if (currentCategory !== product.cat_Name) {
+                            currentCategory = product.cat_Name;
+                            const categoryTitle = document.createElement('div');
+                            categoryTitle.classList.add('category-title');
+                            categoryTitle.textContent = currentCategory;
+                            productContainer.appendChild(categoryTitle);
+                        }
+
+                        const productItem = document.createElement('li');
+                        productItem.textContent = product.prod_Name;
+                        
+                        const removeButton = document.createElement('span');
+                        removeButton.classList.add('remove-button');
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = `item${product.prod_ID}`;
+                        checkbox.onclick = function() {
+                            location.href = `/remove_item/${product.prod_ID}`;
+                        };
+                        const label = document.createElement('label');
+                        label.htmlFor = `item${product.prod_ID}`;
+                        label.textContent = 'Verwijder';
+                        
+                        removeButton.appendChild(checkbox);
+                        removeButton.appendChild(label);
+                        
+                        productItem.appendChild(removeButton);
+                        
+                        productContainer.appendChild(productItem);
+                    });
+                })
+                .catch(error => console.error(`Fout bij het ophalen van producten in categorie ${selectedCategory}:`, error));
+        }
+
+        // Vul de categorieën in het toevoegen van een nieuw item formulier
+        fetchCategories();
+    </script>
+</body>
+
+</html>

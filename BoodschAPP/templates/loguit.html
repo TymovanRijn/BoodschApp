@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uitloggen</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .logout-container {
+            text-align: center;
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .icon {
+            font-size: 5em;
+            color: #4caf50;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+        p {
+            font-size: 1.5em;
+            margin: 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="icon">
+            <i class="fas fa-smile"></i>
+        </div>
+        <p>Je wordt uitgelogd...</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Verzend een AJAX-verzoek naar de /logout route
+            $.ajax({
+                url: '/logout',
+                type: 'GET',
+                success: function (response) {
+                    // Wacht 3 seconden (3000 milliseconden)
+                    setTimeout(function () {
+                        // Stuur de gebruiker naar de loginpagina
+                        window.location.href = '/login';
+                    }, 3000);
+                },
+                error: function (error) {
+                    // Toon een foutmelding als het uitloggen mislukt
+                    alert('Er is iets misgegaan bij het uitloggen. Probeer het opnieuw.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

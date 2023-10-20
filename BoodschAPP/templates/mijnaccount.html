@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e5e5e5;
+        }
+
+        h1 {
+            background-color: #4C76D9;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 1em 0.01em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        
+
+        .navbar img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .account-info {
+            text-align: center;
+            font-size: 18px;
+            margin: 60px 10px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .account-info p {
+            margin: 10px 0;
+        }
+
+        .account-info a {
+            text-decoration: none;
+            color: #4C76D9;
+            display: block;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Mijn Account</h1>
+
+    <div class="account-info">
+        <p>Email: {{ session.user_email }}</p>
+        <p>Naam: {{ session.user_firstname }} {{ session.user_lastname }}</p>
+        {% if session.user_famid %}
+            <p>Familie: {{session.user_familyname}} </p>
+        {% endif %}
+
+        <p>Familie Uitnodigings Code: {% if session.user_famid %} {{ session.user_faminvitecode }} {% else %} Geen {% endif %}</p>
+
+        {% if session.user_famid %}
+            <a href="/verlaatfamilie">Verlaat familie</a>
+        {% endif %}
+        {% if not session.user_famid %}
+            <a class="join-family-link" href="/deelnemenaanfamilie">Deelnemen aan familie</a>
+        {% endif %}
+        {% if not session.user_famid %}
+            <a class="create-family-link" href="/maakfamilie">Creeer een familie</a>
+        {% endif %}
+    </div>
+
+    <div class="navbar">
+        <a href="/home"><img src="{{ url_for('static', filename='icon_home.png') }}" alt="Home"></a>
+        <a href="/mijnaccount"><img src="{{ url_for('static', filename='icon_account.png') }}" alt="Account"></a>
+        <a href="/mijnlijstje"><img src="{{ url_for('static', filename='icon_list.png') }}" alt="Lijst"></a>
+        <a href="/loguit"><img src="{{ url_for('static', filename='icon_logout.png') }}" alt="Instellingen"></a>
+    </div>
+
+    
+</body>
+
+</html>
