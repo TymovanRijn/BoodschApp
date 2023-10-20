@@ -108,8 +108,8 @@ def mijnaccount():
         return redirect(url_for('login'))
 
 
-@app.route('/deelnemenaanfamilie', methods=['GET', 'POST'])
-def deelnemenaanfamilie():
+@app.route('/deelnemenaangroep', methods=['GET', 'POST'])
+def deelnemenaangroep():
     if 'user_id' in session:
         pass
     else:
@@ -119,40 +119,40 @@ def deelnemenaanfamilie():
         invite_code = request.form.get('invite_code')
         print(invite_code)
 
-        # Zoek naar de familie met de opgegeven uitnodigingscode
+        # Zoek naar de groep met de opgegeven uitnodigingscode
         cursor = conn.cursor(buffered=True, dictionary=True)
         cursor.execute(
-            "SELECT * FROM families WHERE fam_InviteCode = %s ", (str(invite_code),))
-        family = cursor.fetchone()
-        if family:
-            cursor.execute("UPDATE users SET usr_FamID = %s WHERE usr_ID = %s",
-                           (family['fam_ID'], session['user_id']))
+            "SELECT * FROM `groups` WHERE group_InviteCode = %s ", (str(invite_code),))
+        group = cursor.fetchone()
+        if group:
+            cursor.execute("UPDATE users SET usr_groupID = %s WHERE usr_ID = %s",
+                           (group['group_ID'], session['user_id']))
             cursor.close()
             conn.commit()
-            session['user_famid'] = family['fam_ID']
-            session['user_familyname'] = family['fam_Name']
-            session['user_faminvitecode'] = family['fam_InviteCode']
+            session['user_groupid'] = group['group_ID']
+            session['user_groupname'] = group['group_Name']
+            session['user_groupinvitecode'] = group['group_InviteCode']
 
             # Redirect naar de accountpagina of een andere gewenste pagina
             return redirect('/mijnaccount')
 
-    return render_template('deelnemenaanfamilie.html')
+    return render_template('deelnemenaangroep.html')
 
 
-@app.route('/verlaatfamilie', methods=['GET'])
-def verlaat_familie():
+@app.route('/verlaatgroep', methods=['GET'])
+def verlaat_groep():
     if 'user_id' in session:
         user_id = session['user_id']
 
-        # Controleer of de gebruiker een familie heeft
-        if session['user_famid'] is not None:
+        # Controleer of de gebruiker een groep heeft
+        if session['user_groupid'] is not None:
             cursor = conn.cursor(buffered=True, dictionary=True)
             cursor.execute(
-                "UPDATE users SET usr_FamID = NULL WHERE usr_ID = %s", (user_id,))
+                "UPDATE users SET usr_groupID = NULL WHERE usr_ID = %s", (user_id,))
             cursor.close()
             conn.commit()
-            session.pop('user_famid', None)
-            session.pop('user_familyname', None)
+            session.pop('user_groupid', None)
+            session.pop('user_groupname', None)
 
             # Hier kun je verdere verwerkingsstappen toevoegen, zoals het bijwerken van de database
 
@@ -163,35 +163,36 @@ def verlaat_familie():
     return redirect('/login')
 
 
-@app.route('/maakfamilie', methods=['GET', 'POST'])
-def maak_familie():
+@app.route('/maakgroep', methods=['GET', 'POST'])
+def maak_groep():
     if 'user_id' in session:
         user_id = session['user_id']
-        family_name = request.form.get('family_name')
+        group_name = request.form.get('group_name')
 
         if request.method == 'POST':
-            # Maak een nieuwe familie en wijs een unieke ID toe
+            # Maak een nieuwe groep en wijs een unieke ID toe
             # ...
 
-            # Maak een unieke fam_InviteCode:
+            # Maak een unieke group_InviteCode:
             code = str(uuid.uuid4())[:6]  # Haal de eerste 6 tekens van de UUID
 
             # Verwijder eventuele streepjes
             code = code.replace('-', '')
             cursor = conn.cursor(buffered=True, dictionary=True)
             cursor.execute(
-                "INSERT INTO families (fam_Name, fam_InviteCode) VALUES (%s, %s)", (family_name, code))
+                "INSERT INTO `groups` (group_Name, group_InviteCode) VALUES (%s, %s)",
+                (group_name, code))
 
             cursor.execute(
-                "SELECT fam_ID FROM families WHERE fam_InviteCode = %s", (code,))
-            family_id = cursor.fetchone()['fam_ID']
+                "SELECT group_ID FROM `groups` WHERE group_InviteCode = %s", (code,))
+            group_id = cursor.fetchone()['group_ID']
             cursor.execute(
-                "UPDATE users SET usr_FamID = %s WHERE usr_ID = %s", (family_id, user_id))
+                "UPDATE users SET usr_groupID = %s WHERE usr_ID = %s", (group_id, user_id))
 
-            # Voeg de familiegegevens toe aan de sessie (optioneel)
-            session['user_famid'] = family_id
-            session['user_familyname'] = family_name
-            session['user_faminvitecode'] = code
+            # Voeg de groepgegevens toe aan de sessie (optioneel)
+            session['user_groupid'] = group_id
+            session['user_groupname'] = group_name
+            session['user_groupinvitecode'] = code
             cursor.close()
             conn.commit()
 
@@ -199,15 +200,15 @@ def maak_familie():
             # Redirect naar de accountpagina of een andere gewenste pagina
             return redirect('/mijnaccount')
 
-        return render_template('maakfamilie.html')
+        return render_template('maakgroep.html')
 
     # Redirect naar de inlogpagina als de gebruiker niet is ingelogd
     return redirect('/login')
 
 
-@app.route('/niet_in_familie', methods=['GET'])
-def not_in_family():
-    return render_template('niet_in_familie.html')
+@app.route('/niet_in_groep', methods=['GET'])
+def not_in_group():
+    return render_template('niet_in_groep.html')
 
 
 # LOGIN LOGICS
@@ -230,17 +231,17 @@ def login():
             session['user_email'] = user['usr_Email']
             session['user_firstname'] = user['usr_FirstName']
             session['user_lastname'] = user['usr_LastName']
-            if user['usr_FamID'] is not None:
-                session['user_famid'] = user['usr_FamID']
+            if user['usr_groupID'] is not None:
+                session['user_groupid'] = user['usr_groupID']
                 cursor = conn.cursor(buffered=True, dictionary=True)
                 cursor.execute(
-                    "SELECT * FROM families WHERE fam_ID = %s", (user['usr_FamID'],))
-                famid = cursor.fetchone()
-                session['user_faminvitecode'] = famid['fam_InviteCode']
-                session['user_familyname'] = famid['fam_Name']
+                    "SELECT * FROM `groups` WHERE group_ID = %s", (user['usr_groupID'],))
+                groupid = cursor.fetchone()
+                session['user_groupinvitecode'] = groupid['group_InviteCode']
+                session['user_groupname'] = groupid['group_Name']
                 cursor.close()
             else:
-                session['user_famid'] = None
+                session['user_groupid'] = None
             # Create a response object
             resp = make_response(redirect(url_for('home')))
 
@@ -249,14 +250,15 @@ def login():
             resp.set_cookie('user_email', user['usr_Email'])
             resp.set_cookie('user_firstname', user['usr_FirstName'])
             resp.set_cookie('user_lastname', user['usr_LastName'])
-            if user['usr_FamID'] is not None:
-                resp.set_cookie('user_famid', str(user['usr_FamID']))
+            if user['usr_groupID'] is not None:
+                resp.set_cookie('user_groupid', str(user['usr_groupID']))
                 cursor = conn.cursor(buffered=True, dictionary=True)
                 cursor.execute(
-                    "SELECT * FROM families WHERE fam_ID = %s", (user['usr_FamID'],))
-                famid = cursor.fetchone()
-                resp.set_cookie('user_faminvitecode', famid['fam_InviteCode'])
-                resp.set_cookie('user_familyname', famid['fam_Name'])
+                    "SELECT * FROM `groups` WHERE group_ID = %s", (user['usr_groupID'],))
+                groupid = cursor.fetchone()
+                resp.set_cookie('user_groupinvitecode',
+                                groupid['group_InviteCode'])
+                resp.set_cookie('user_groupname', groupid['group_Name'])
                 cursor.close()
 
             return resp  # Return the response object with the cookie
@@ -269,16 +271,16 @@ def login():
 
 @app.route('/add_category', methods=['POST'])
 def add_category():
-    if 'user_famid' not in session:
-        # Stuur gebruiker naar de loginpagina als er geen familie-ID in de sessie is
+    if 'user_groupid' not in session:
+        # Stuur gebruiker naar de loginpagina als er geen groep-ID in de sessie is
         return redirect('/login')
 
     new_category = request.form.get('new_category')
 
     if new_category:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO categories (cat_Name, cat_FamID) VALUES (%s, %s)",
-                       (new_category, session['user_famid']))
+        cursor.execute("INSERT INTO categories (cat_Name, cat_groupID) VALUES (%s, %s)",
+                       (new_category, session['user_groupid']))
         conn.commit()
         cursor.close()
 
@@ -287,7 +289,7 @@ def add_category():
 
 @app.route('/lijstjeinstellingen', methods=['GET'])
 def lijstjeinstellingen():
-    if session.get('user_famid') is None:
+    if session.get('user_groupid') is None:
         return redirect('/login')
     else:
         return render_template('lijstjeinstellingen.html')
@@ -295,16 +297,16 @@ def lijstjeinstellingen():
 
 @app.route('/remove_category', methods=['POST'])
 def remove_category():
-    if 'user_famid' not in session:
-        # Stuur gebruiker naar de loginpagina als er geen familie-ID in de sessie is
+    if 'user_groupid' not in session:
+        # Stuur gebruiker naar de loginpagina als er geen groep-ID in de sessie is
         return redirect('/login')
 
     category_to_remove = request.form.get('category_to_remove')
 
     if category_to_remove:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM categories WHERE cat_Name = %s AND cat_FamID = %s",
-                       (category_to_remove, session['user_famid']))
+        cursor.execute("DELETE FROM categories WHERE cat_Name = %s AND cat_groupID = %s",
+                       (category_to_remove, session['user_groupid']))
         conn.commit()
         cursor.close()
 
@@ -313,12 +315,12 @@ def remove_category():
 
 @app.route('/mijnlijstje', methods=['GET'])
 def mijnlijstje():
-    if session.get('user_famid') is None:
-        return redirect('/niet_in_familie')  # Redirect to the warning page
+    if session.get('user_groupid') is None:
+        return redirect('/niet_in_groep')  # Redirect to the warning page
     else:
         cursor = conn.cursor(dictionary=True)
         cursor.execute(
-            "SELECT * FROM products WHERE prod_FamID = %s", (session['user_famid'],))
+            "SELECT * FROM products WHERE prod_groupID = %s", (session['user_groupid'],))
         products = cursor.fetchall()
         cursor.close()
         return render_template('mijnlijstje.html', products=products)
@@ -326,8 +328,8 @@ def mijnlijstje():
 
 @app.route('/add_item', methods=['POST'])
 def add_item():
-    if 'user_famid' not in session:
-        # Stuur gebruiker naar de loginpagina als er geen familie-ID in de sessie is
+    if 'user_groupid' not in session:
+        # Stuur gebruiker naar de loginpagina als er geen groep-ID in de sessie is
         return redirect('/login')
 
     new_item = request.form.get('new_item')
@@ -336,14 +338,14 @@ def add_item():
     if new_item and new_category:
         # Get the category ID
         cursor = conn.cursor(buffered=True, dictionary=True)
-        cursor.execute("SELECT * FROM categories WHERE cat_Name = %s AND cat_FamID = %s",
-                       (new_category, session['user_famid']))
+        cursor.execute("SELECT * FROM categories WHERE cat_Name = %s AND cat_groupID = %s",
+                       (new_category, session['user_groupid']))
         category = cursor.fetchone()
         print(category['cat_ID'])
         cursor.close()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO products (prod_Name, prod_FamID, prod_CatID) VALUES (%s, %s, %s)",
-                       (new_item, session['user_famid'], category['cat_ID']))
+        cursor.execute("INSERT INTO products (prod_Name, prod_groupID, prod_CatID) VALUES (%s, %s, %s)",
+                       (new_item, session['user_groupid'], category['cat_ID']))
         conn.commit()
         cursor.close()
 
@@ -352,8 +354,8 @@ def add_item():
 
 @app.route('/remove_item/<int:item_id>', methods=['GET'])
 def remove_item(item_id):
-    if 'user_famid' not in session:
-        # Stuur gebruiker naar de loginpagina als er geen familie-ID in de sessie is
+    if 'user_groupid' not in session:
+        # Stuur gebruiker naar de loginpagina als er geen groep-ID in de sessie is
         return redirect('/login')
 
     cursor = conn.cursor()
@@ -366,13 +368,13 @@ def remove_item(item_id):
 
 @app.route('/get_categories', methods=['GET'])
 def get_categories():
-    if 'user_famid' not in session:
+    if 'user_groupid' not in session:
         # Geef een lege lijst terug als de gebruiker niet is ingelogd
         return jsonify({'categories': []})
 
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT cat_Name FROM categories WHERE cat_FamID = %s", (session['user_famid'],))
+        "SELECT cat_Name FROM categories WHERE cat_groupID = %s", (session['user_groupid'],))
     categories = [row[0] for row in cursor.fetchall()]
     cursor.close()
     return jsonify({'categories': categories})
@@ -380,22 +382,22 @@ def get_categories():
 
 @app.route('/get_products_by_category/<category>', methods=['GET'])
 def get_products_by_category(category):
-    if 'user_famid' not in session:
+    if 'user_groupid' not in session:
         # Geef een lege lijst terug als de gebruiker niet is ingelogd
         return jsonify({'products': []})
 
     cursor = conn.cursor(dictionary=True)
     print(category)
-    print(session['user_famid'])
-    cursor.execute("SELECT * FROM categories WHERE cat_Name = %s AND cat_FamID = %s",
-                   (category, session['user_famid']))
+    print(session['user_groupid'])
+    cursor.execute("SELECT * FROM categories WHERE cat_Name = %s AND cat_groupID = %s",
+                   (category, session['user_groupid']))
     result = cursor.fetchone()
     print(result)
 
     if result:
         category_id = result['cat_ID']
-        cursor.execute("SELECT * FROM products WHERE prod_FamID = %s AND prod_CatID = %s",
-                       (session['user_famid'], category_id))
+        cursor.execute("SELECT * FROM products WHERE prod_groupID = %s AND prod_CatID = %s",
+                       (session['user_groupid'], category_id))
         products = cursor.fetchall()
     else:
         products = []
@@ -416,9 +418,9 @@ def logout():
     session.pop('user_firstname', None)
     session.pop('user_lastname', None)
     session.pop('user_email', None)
-    session.pop('user_famid', None)
-    session.pop('user_familyname', None)
-    session.pop('user_faminvitecode', None)
+    session.pop('user_groupid', None)
+    session.pop('user_groupname', None)
+    session.pop('user_groupinvitecode', None)
 
     # Create a response object
     resp = make_response(redirect(url_for('login')))
@@ -428,9 +430,9 @@ def logout():
     resp.delete_cookie('user_email')
     resp.delete_cookie('user_firstname')
     resp.delete_cookie('user_lastname')
-    resp.delete_cookie('user_famid')
-    resp.delete_cookie('user_familyname')
-    resp.delete_cookie('user_faminvitecode')
+    resp.delete_cookie('user_groupid')
+    resp.delete_cookie('user_groupname')
+    resp.delete_cookie('user_groupinvitecode')
 
     return resp  # Return the response object with the removed cookie
 

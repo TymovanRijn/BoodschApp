@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mijn Lijstje</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -12,6 +13,8 @@
             margin: 0;
             padding: 0;
             background-color: #e5e5e5;
+            overflow-y: auto;
+            padding-bottom: 70px;
         }
 
         h1 {
@@ -196,21 +199,53 @@
         /* Stijlen voor de instellingenknop */
         .settings-icon {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
         }
 
         .settings-icon img {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             cursor: pointer;
         }
+        @media (max-width: 768px) {
+    h1 {
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    
+
+    #categoryDropdown {
+        width: 180px; /* Pas de breedte aan voor kleinere schermen */
+    }
+
+    .product-list li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .remove-button label {
+        margin-top: 5px;
+    }
+
+    .add-item-form {
+        flex-direction: column;
+    }
+
+    .add-item-form input,
+    .add-item-form select,
+    .add-item-form button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
 
     </style>
 </head>
 
 <body>
-    <h1>De {{ session.user_familyname }} Lijst</h1>
+    <h1>De {{ session.user_groupname }} Lijst</h1>
 
     <div class="navbar">
         <div><a href="/home"><img class="icon" src="{{ url_for('static', filename='icon_home.png') }}" alt="Home"></a></div>
@@ -258,8 +293,8 @@
             fetch('/get_categories')
                 .then(response => response.json())
                 .then(data => {
-                    categoryDropdown.innerHTML = '<option value="" disabled selected>Selecteer categorie</option>';
-                    newItemCategoryDropdown.innerHTML = '<option value="" disabled selected>Selecteer categorie</option>';
+                    categoryDropdown.innerHTML = '<option value="" disabled>Selecteer categorie</option>';
+                    newItemCategoryDropdown.innerHTML = '<option value="" disabled>Selecteer categorie</option>';
                     data.categories.forEach(category => {
                         const option = document.createElement('option');
                         option.value = category;
@@ -272,6 +307,7 @@
 
                     // Selecteer standaard de eerste categorie
                     if (data.categories.length > 0) {
+                        categoryDropdown.value = data.categories[0]; // Selecteer de eerste categorie
                         showProductsByCategory();
                     }
                 })
@@ -281,7 +317,9 @@
         // Functie om producten per categorie op te halen en weer te geven
         // Functie om producten per categorie op te halen en weer te geven
         function showProductsByCategory() {
+            
             const selectedCategory = categoryDropdown.value;
+            
             fetch(`/get_products_by_category/${selectedCategory}`)
                 .then(response => response.json())
                 .then(data => {
@@ -322,9 +360,10 @@
                 })
                 .catch(error => console.error(`Fout bij het ophalen van producten in categorie ${selectedCategory}:`, error));
         }
-
+    
         // Vul de categorieën in het toevoegen van een nieuw item formulier
         fetchCategories();
+        
     </script>
 </body>
 

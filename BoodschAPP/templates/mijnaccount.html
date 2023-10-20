@@ -3,7 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Mijn Account</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -76,20 +78,20 @@
     <div class="account-info">
         <p>Email: {{ session.user_email }}</p>
         <p>Naam: {{ session.user_firstname }} {{ session.user_lastname }}</p>
-        {% if session.user_famid %}
-            <p>Familie: {{session.user_familyname}} </p>
+        {% if session.user_groupid %}
+            <p>Groep: {{session.user_groupname}} </p>
         {% endif %}
 
-        <p>Familie Uitnodigings Code: {% if session.user_famid %} {{ session.user_faminvitecode }} {% else %} Geen {% endif %}</p>
+        <p>Groep Uitnodigings Code: {% if session.user_groupid %} {{ session.user_groupinvitecode }} {% else %} Geen {% endif %}</p>
 
-        {% if session.user_famid %}
-            <a href="/verlaatfamilie">Verlaat familie</a>
+        {% if session.user_groupid %}
+            <a href="/verlaatgroep">Verlaat groep</a>
         {% endif %}
-        {% if not session.user_famid %}
-            <a class="join-family-link" href="/deelnemenaanfamilie">Deelnemen aan familie</a>
+        {% if not session.user_groupid %}
+            <a class="join-family-link" href="/deelnemenaangroep">Deelnemen aan groep</a>
         {% endif %}
-        {% if not session.user_famid %}
-            <a class="create-family-link" href="/maakfamilie">Creeer een familie</a>
+        {% if not session.user_groupid %}
+            <a class="create-family-link" href="/maakgroep">Creeer een groep</a>
         {% endif %}
     </div>
 
